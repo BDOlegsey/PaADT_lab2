@@ -5,7 +5,6 @@
 
 namespace lab2 {
 
-// thin wrapper around a single bit value
 class Bit {
 public:
     Bit() : value_(false) {}

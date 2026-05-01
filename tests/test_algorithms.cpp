@@ -63,7 +63,6 @@ void TestAlgorithms() {
     int insert_values[] = {9, 10};
     MutableArraySequence<int> insert(insert_values, 2);
     Sequence<int>* sliced = Slice<int>(source, 1, 2, insert);
-    // {1,2,3,4,5} replace seq[1..2] with {9,10} -> {1,9,10,4,5}
     T_ASSERT_EQ("slice length", sliced->GetLength(), 5);
     T_ASSERT_EQ("slice 0", sliced->Get(0), 1);
     T_ASSERT_EQ("slice 1", sliced->Get(1), 9);
@@ -72,7 +71,6 @@ void TestAlgorithms() {
     delete sliced;
 
     Sequence<int>* sliced_neg = Slice<int>(source, -2, 1, insert);
-    // index -2 -> 3, replace 1 element -> {1,2,3,9,10,5}
     T_ASSERT_EQ("slice negative length", sliced_neg->GetLength(), 6);
     T_ASSERT_EQ("slice negative element", sliced_neg->Get(3), 9);
     delete sliced_neg;

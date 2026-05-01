@@ -33,11 +33,8 @@ public:
     IEnumerator<T>* GetEnumerator() const override;
 
 protected:
-    // Instance() returns the object that should receive the mutation —
-    // the same instance for mutable, a fresh clone for immutable.
     virtual ArraySequence<T>* Instance() = 0;
 
-    // factory hook for GetSubsequence — keeps result type aligned with subclass.
     virtual ArraySequence<T>* MakeEmpty() const = 0;
 
     void AppendInternal(const T& item);

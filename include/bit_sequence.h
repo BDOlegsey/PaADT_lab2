@@ -9,8 +9,6 @@
 
 namespace lab2 {
 
-// fixed-length sequence of bits packed into 32-bit unsigned words.
-// implements Sequence<Bit> so all generic algorithms work on it.
 class BitSequence : public Sequence<Bit> {
 public:
     static const unsigned int kBitsPerWord = 32;
@@ -60,7 +58,6 @@ private:
     DynamicArray<unsigned int> words_;
     int length_;
 
-    // mutable cache so Get can return a const reference
     mutable Bit cached_bit_;
 
     class BitEnumerator;

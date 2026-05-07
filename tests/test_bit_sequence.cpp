@@ -48,6 +48,13 @@ void TestBitSequence() {
     T_ASSERT_EQ("after prepend length", prepended->GetLength(), 5);
     T_ASSERT_EQ("after prepend first", prepended->GetFirst().Value(), false);
 
+    small.InsertAt(Bit(true), 2);
+    T_ASSERT_EQ("after insert length", small.GetLength(), 6);
+
+    BitSequence add_tail("101");
+    small.Concat(&add_tail);
+    T_ASSERT_EQ("after concat length", small.GetLength(), 9);
+
     BitSequence wide_a(64);
     BitSequence wide_b(64);
     for (int i = 0; i < 64; ++i) {

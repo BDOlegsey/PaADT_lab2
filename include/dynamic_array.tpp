@@ -61,6 +61,9 @@ template <class T>
 int DynamicArray<T>::GetSize() const { return size_; }
 
 template <class T>
+int DynamicArray<T>::GetCapacity() const { return capacity_; }
+
+template <class T>
 T& DynamicArray<T>::Get(int index) {
     EnsureIndexValid(index);
     return data_[index];

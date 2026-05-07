@@ -16,6 +16,7 @@ public:
     ~DynamicArray();
 
     int GetSize() const;
+    int GetCapacity() const;
 
     T& Get(int index);
     const T& Get(int index) const;

@@ -54,8 +54,6 @@ followed by a summary block (`All / Done / Fall / Coverage`).
 ## Run console app
 
 ```bash
-
-```bash
 g++ -std=c++17 -Wall -Wextra -Iinclude \
   src/main.cpp \
   src/console_ui.cpp \

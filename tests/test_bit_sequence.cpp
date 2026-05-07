@@ -8,6 +8,12 @@ namespace tests {
 void TestBitSequence() {
     std::printf("\n[BitSequence]\n");
 
+    T_ASSERT_EQ("ToChar(true)",  lab2::ToChar(lab2::Bit(true)),  '1');
+    T_ASSERT_EQ("ToChar(false)", lab2::ToChar(lab2::Bit(false)), '0');
+
+    T_ASSERT_EQ("Bit::Char(true)",  lab2::Bit(true).Char(),  '1');
+    T_ASSERT_EQ("Bit::Char(false)", lab2::Bit(false).Char(), '0');
+
     BitSequence empty;
     T_ASSERT_EQ("empty length", empty.GetLength(), 0);
 

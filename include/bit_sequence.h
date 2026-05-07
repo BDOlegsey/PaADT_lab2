@@ -11,7 +11,7 @@ namespace lab2 {
 
 class BitSequence : public Sequence<Bit> {
 public:
-    static const unsigned int kBitsPerWord = 32;
+    static const unsigned int kBitsPerWord = 8 * sizeof(unsigned int);
 
     explicit BitSequence(int length = 0);
     BitSequence(const bool* bits, int length);
@@ -22,9 +22,9 @@ public:
 
     int GetLength() const override;
 
-    const Bit& GetFirst() const override;
-    const Bit& GetLast() const override;
-    const Bit& Get(int index) const override;
+    Bit GetFirst() const override;
+    Bit GetLast() const override;
+    Bit Get(int index) const override;
 
     bool GetBit(int index) const;
     void SetBit(int index, bool value);
@@ -57,8 +57,6 @@ private:
 
     DynamicArray<unsigned int> words_;
     int length_;
-
-    mutable Bit cached_bit_;
 
     class BitEnumerator;
 };

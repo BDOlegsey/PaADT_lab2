@@ -16,9 +16,9 @@ public:
 
     virtual int GetLength() const = 0;
 
-    virtual const T& GetFirst() const = 0;
-    virtual const T& GetLast() const = 0;
-    virtual const T& Get(int index) const = 0;
+    virtual T GetFirst() const = 0;
+    virtual T GetLast() const = 0;
+    virtual T Get(int index) const = 0;
 
     virtual Sequence<T>* GetSubsequence(int start_index, int end_index) const = 0;
 
@@ -33,7 +33,7 @@ public:
     Option<T> TryGetFirst(Predicate predicate = nullptr) const;
     Option<T> TryGetLast(Predicate predicate = nullptr) const;
 
-    const T& operator[](int index) const { return Get(index); }
+    T operator[](int index) const { return Get(index); }
 };
 
 }  // namespace lab2

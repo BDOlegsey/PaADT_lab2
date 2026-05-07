@@ -17,7 +17,7 @@ public:
         return true;
     }
 
-    const T& Current() const override {
+    T Current() const override {
         if (position_ < 0) throw InvalidArgument("Enumerator: MoveNext not called");
         return data_->Get(position_);
     }
@@ -55,19 +55,19 @@ template <class T>
 int ArraySequence<T>::GetLength() const { return items_.GetSize(); }
 
 template <class T>
-const T& ArraySequence<T>::GetFirst() const {
+T ArraySequence<T>::GetFirst() const {
     if (items_.GetSize() == 0) throw IndexOutOfRange("GetFirst on empty sequence");
     return items_.Get(0);
 }
 
 template <class T>
-const T& ArraySequence<T>::GetLast() const {
+T ArraySequence<T>::GetLast() const {
     if (items_.GetSize() == 0) throw IndexOutOfRange("GetLast on empty sequence");
     return items_.Get(items_.GetSize() - 1);
 }
 
 template <class T>
-const T& ArraySequence<T>::Get(int index) const { return items_.Get(index); }
+T ArraySequence<T>::Get(int index) const { return items_.Get(index); }
 
 template <class T>
 Sequence<T>* ArraySequence<T>::GetSubsequence(int start_index, int end_index) const {

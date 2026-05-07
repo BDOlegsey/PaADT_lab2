@@ -18,9 +18,9 @@ public:
 
     int GetLength() const override;
 
-    const T& GetFirst() const override;
-    const T& GetLast() const override;
-    const T& Get(int index) const override;
+    T GetFirst() const override;
+    T GetLast() const override;
+    T Get(int index) const override;
 
     Sequence<T>* GetSubsequence(int start_index, int end_index) const override;
 

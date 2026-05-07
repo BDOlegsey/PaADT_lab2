@@ -17,7 +17,7 @@ public:
 
     void Reset() override { index_ = -1; }
 
-    const Bit& Current() const override {
+    Bit Current() const override {
         if (index_ < 0 || index_ >= owner_->GetLength()) {
             throw IndexOutOfRange("enumerator out of range");
         }
@@ -106,26 +106,23 @@ BitSequence& BitSequence::operator=(const BitSequence& other) {
 
 int BitSequence::GetLength() const { return length_; }
 
-const Bit& BitSequence::GetFirst() const {
+Bit BitSequence::GetFirst() const {
     if (length_ == 0) {
         throw EmptyContainer("bit sequence is empty");
     }
-    cached_bit_ = Bit(GetBit(0));
-    return cached_bit_;
+    return Bit(GetBit(0));
 }
 
-const Bit& BitSequence::GetLast() const {
+Bit BitSequence::GetLast() const {
     if (length_ == 0) {
         throw EmptyContainer("bit sequence is empty");
     }
-    cached_bit_ = Bit(GetBit(length_ - 1));
-    return cached_bit_;
+    return Bit(GetBit(length_ - 1));
 }
 
-const Bit& BitSequence::Get(int index) const {
+Bit BitSequence::Get(int index) const {
     EnsureIndexValid(index);
-    cached_bit_ = Bit(GetBit(index));
-    return cached_bit_;
+    return Bit(GetBit(index));
 }
 
 bool BitSequence::GetBit(int index) const {

@@ -15,7 +15,7 @@ public:
         return true;
     }
 
-    const T& Current() const override {
+    T Current() const override {
         if (position_ < 0) throw InvalidArgument("Enumerator: MoveNext not called");
         return data_->Get(position_);
     }
@@ -53,13 +53,13 @@ template <class T>
 int ListSequence<T>::GetLength() const { return items_.GetLength(); }
 
 template <class T>
-const T& ListSequence<T>::GetFirst() const { return items_.GetFirst(); }
+T ListSequence<T>::GetFirst() const { return items_.GetFirst(); }
 
 template <class T>
-const T& ListSequence<T>::GetLast() const { return items_.GetLast(); }
+T ListSequence<T>::GetLast() const { return items_.GetLast(); }
 
 template <class T>
-const T& ListSequence<T>::Get(int index) const { return items_.Get(index); }
+T ListSequence<T>::Get(int index) const { return items_.Get(index); }
 
 template <class T>
 Sequence<T>* ListSequence<T>::GetSubsequence(int start_index, int end_index) const {

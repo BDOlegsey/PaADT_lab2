@@ -25,7 +25,7 @@ Sequence<T>* Where(const Sequence<T>& source, bool (*predicate)(const T&)) {
     }
     MutableArraySequence<T>* result = new MutableArraySequence<T>();
     for (int i = 0; i < source.GetLength(); ++i) {
-        const T& item = source.Get(i);
+        T item = source.Get(i);
         if (predicate(item)) {
             result->Append(item);
         }
@@ -80,7 +80,7 @@ Pair<Sequence<T1>*, Sequence<T2>*> Unzip(const Sequence<Pair<T1, T2>>& source) {
     MutableArraySequence<T1>* a = new MutableArraySequence<T1>();
     MutableArraySequence<T2>* b = new MutableArraySequence<T2>();
     for (int i = 0; i < source.GetLength(); ++i) {
-        const Pair<T1, T2>& p = source.Get(i);
+        Pair<T1, T2> p = source.Get(i);
         a->Append(p.first);
         b->Append(p.second);
     }
@@ -95,7 +95,7 @@ Sequence<Sequence<T>*>* Split(const Sequence<T>& source, bool (*predicate)(const
     MutableArraySequence<Sequence<T>*>* result = new MutableArraySequence<Sequence<T>*>();
     MutableArraySequence<T>* chunk = new MutableArraySequence<T>();
     for (int i = 0; i < source.GetLength(); ++i) {
-        const T& item = source.Get(i);
+        T item = source.Get(i);
         if (predicate(item)) {
             result->Append(chunk);
             chunk = new MutableArraySequence<T>();

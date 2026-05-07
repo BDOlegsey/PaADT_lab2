@@ -201,19 +201,20 @@ Sequence<Bit>* BitSequence::Concat(const Sequence<Bit>* other) {
     if (other == nullptr) {
         throw InvalidArgument("other sequence is null");
     }
-    const int old_words = WordCount(length_);
-    const int new_words = WordCount(length_ + other->GetLength());
+    const int old_length = length_;
+    const int add = other->GetLength();
+    const int old_words = WordCount(old_length);
+    const int new_words = WordCount(old_length + add);
     if (new_words > old_words) {
         words_.Resize(new_words);
         for (int i = old_words; i < new_words; ++i) {
             words_.Set(i, 0u);
         }
     }
-    
-    for (int i = 0; i < other->GetLength(); ++i) {
-        SetBit(length_ + i, other->Get(i).Value());
+    length_ = old_length + add;
+    for (int i = 0; i < add; ++i) {
+        SetBit(old_length + i, other->Get(i).Value());
     }
-    length_ += other->GetLength();
     return this;
 }
 

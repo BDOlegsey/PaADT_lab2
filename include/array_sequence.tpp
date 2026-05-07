@@ -209,7 +209,7 @@ Sequence<T>* ImmutableArraySequence<T>::Clone() const {
 
 template <class T>
 ArraySequence<T>* ImmutableArraySequence<T>::Instance() {
-    return new ImmutableArraySequence<T>(*this);
+    return static_cast<ArraySequence<T>*>(this->Clone());
 }
 
 template <class T>

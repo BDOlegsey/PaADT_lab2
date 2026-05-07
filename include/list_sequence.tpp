@@ -164,7 +164,7 @@ Sequence<T>* ImmutableListSequence<T>::Clone() const {
 
 template <class T>
 ListSequence<T>* ImmutableListSequence<T>::Instance() {
-    return new ImmutableListSequence<T>(*this);
+    return static_cast<ListSequence<T>*>(this->Clone());
 }
 
 template <class T>

@@ -41,12 +41,22 @@ void TestDynamicArray() {
 
     DynamicArray<int> growth;
     int prev_capacity = growth.GetCapacity();
+    bool growth_capacity_ge_size = true;
+    bool growth_capacity_monotonic = true;
     for (int i = 0; i < 1000; ++i) {
         growth.Resize(growth.GetSize() + 1);
-        T_ASSERT("growth capacity >= size", growth.GetCapacity() >= growth.GetSize());
-        T_ASSERT("growth capacity monotonic", growth.GetCapacity() >= prev_capacity);
+        if (growth.GetCapacity() < growth.GetSize()) {
+            growth_capacity_ge_size = false;
+            break;
+        }
+        if (growth.GetCapacity() < prev_capacity) {
+            growth_capacity_monotonic = false;
+            break;
+        }
         prev_capacity = growth.GetCapacity();
     }
+    T_ASSERT("growth capacity >= size", growth_capacity_ge_size);
+    T_ASSERT("growth capacity monotonic", growth_capacity_monotonic);
     T_ASSERT("capacity grows in reserve style", growth.GetCapacity() < growth.GetSize() * 4);
 
     DynamicArray<int> copy(arr);

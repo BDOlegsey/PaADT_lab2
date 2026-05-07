@@ -7,20 +7,21 @@
 namespace lab2 {
 
 template <class T>
-DynamicArray<T>::DynamicArray() : data_(nullptr), size_(0) {}
+DynamicArray<T>::DynamicArray() : data_(nullptr), size_(0), capacity_(0) {}
 
 template <class T>
-DynamicArray<T>::DynamicArray(int size) : data_(nullptr), size_(0) {
+DynamicArray<T>::DynamicArray(int size) : data_(nullptr), size_(0), capacity_(0) {
     if (size < 0) {
         throw InvalidArgument("DynamicArray: size must be non-negative, got " +
                               std::to_string(size));
     }
     size_ = size;
-    data_ = (size_ == 0) ? nullptr : new T[size_]();
+    capacity_ = size_;
+    data_ = (capacity_ == 0) ? nullptr : new T[capacity_]();
 }
 
 template <class T>
-DynamicArray<T>::DynamicArray(const T* items, int count) : data_(nullptr), size_(0) {
+DynamicArray<T>::DynamicArray(const T* items, int count) : data_(nullptr), size_(0), capacity_(0) {
     if (count < 0) {
         throw InvalidArgument("DynamicArray: count must be non-negative, got " +
                               std::to_string(count));
@@ -29,17 +30,18 @@ DynamicArray<T>::DynamicArray(const T* items, int count) : data_(nullptr), size_
         throw InvalidArgument("DynamicArray: source pointer is null");
     }
     size_ = count;
+    capacity_ = size_;
     if (size_ > 0) {
-        data_ = new T[size_];
+        data_ = new T[capacity_];
         for (int i = 0; i < size_; ++i) data_[i] = items[i];
     }
 }
 
 template <class T>
 DynamicArray<T>::DynamicArray(const DynamicArray<T>& other)
-    : data_(nullptr), size_(other.size_) {
-    if (size_ > 0) {
-        data_ = new T[size_];
+    : data_(nullptr), size_(other.size_), capacity_(other.capacity_) {
+    if (capacity_ > 0) {
+        data_ = new T[capacity_];
         for (int i = 0; i < size_; ++i) data_[i] = other.data_[i];
     }
 }
@@ -83,11 +85,24 @@ void DynamicArray<T>::Resize(int new_size) {
                               std::to_string(new_size));
     }
     if (new_size == size_) return;
-    T* new_data = (new_size == 0) ? nullptr : new T[new_size]();
-    const int copy_count = std::min(size_, new_size);
-    for (int i = 0; i < copy_count; ++i) new_data[i] = data_[i];
-    delete[] data_;
-    data_ = new_data;
+    if (new_size == 0) {
+        for (int i = 0; i < size_; ++i) {
+            data_[i] = T();
+        }
+        size_ = 0;
+        return;
+    }
+    const int old_size = size_;
+    EnsureCapacity(new_size);
+    if (new_size > old_size) {
+        for (int i = old_size; i < new_size; ++i) {
+            data_[i] = T();
+        }
+    } else {
+        for (int i = new_size; i < old_size; ++i) {
+            data_[i] = T();
+        }
+    }
     size_ = new_size;
 }
 
@@ -109,6 +124,25 @@ template <class T>
 void DynamicArray<T>::Swap(DynamicArray<T>& other) {
     std::swap(data_, other.data_);
     std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
+}
+
+template <class T>
+void DynamicArray<T>::EnsureCapacity(int min_capacity) {
+    if (min_capacity <= capacity_) {
+        return;
+    }
+    int new_capacity = capacity_ > 0 ? capacity_ : 1;
+    while (new_capacity < min_capacity) {
+        new_capacity *= 2;
+    }
+    T* new_data = new T[new_capacity]();
+    for (int i = 0; i < size_; ++i) {
+        new_data[i] = data_[i];
+    }
+    delete[] data_;
+    data_ = new_data;
+    capacity_ = new_capacity;
 }
 
 }  // namespace lab2

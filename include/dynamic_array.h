@@ -28,10 +28,12 @@ public:
 
 private:
     void EnsureIndexValid(int index) const;
+    void EnsureCapacity(int min_capacity);
     void Swap(DynamicArray<T>& other);
 
     T* data_;
     int size_;
+    int capacity_;
 };
 
 }  // namespace lab2

@@ -157,22 +157,23 @@ Sequence<Bit>* BitSequence::GetSubsequence(int start_index, int end_index) const
 }
 
 Sequence<Bit>* BitSequence::Append(const Bit& item) {
-    BitSequence next(length_ + 1);
-    for (int i = 0; i < length_; ++i) {
-        next.SetBit(i, GetBit(i));
+    const int old_words = WordCount(length_);
+    const int new_words = WordCount(length_ + 1);
+    if (new_words > old_words) {
+        words_.Resize(new_words);
+        words_.Set(new_words - 1, 0u);
     }
-    next.SetBit(length_, item.Value());
-    *this = next;
+    ++length_;
+    SetBit(length_- 1, item.Value());
     return this;
 }
 
 Sequence<Bit>* BitSequence::Prepend(const Bit& item) {
-    BitSequence next(length_ + 1);
-    next.SetBit(0, item.Value());
-    for (int i = 0; i < length_; ++i) {
-        next.SetBit(i + 1, GetBit(i));
+    Append(Bit(false));
+    for (int i = length_ - 1; i > 0; --i) {
+        SetBit(i, GetBit(i - 1));
     }
-    *this = next;
+    SetBit(0, item.Value());
     return this;
 }
 
@@ -180,15 +181,14 @@ Sequence<Bit>* BitSequence::InsertAt(const Bit& item, int index) {
     if (index < 0 || index > length_) {
         throw IndexOutOfRange("insert index out of range");
     }
-    BitSequence next(length_ + 1);
-    for (int i = 0; i < index; ++i) {
-        next.SetBit(i, GetBit(i));
+    if (index == length_) {
+        return Append(item);
     }
-    next.SetBit(index, item.Value());
-    for (int i = index; i < length_; ++i) {
-        next.SetBit(i + 1, GetBit(i));
+    Append(Bit(false));
+    for (int i = length_ - 1; i > index; --i) {
+        SetBit(i, GetBit(i - 1));
     }
-    *this = next;
+    SetBit(index, item.Value());
     return this;
 }
 
@@ -201,15 +201,19 @@ Sequence<Bit>* BitSequence::Concat(const Sequence<Bit>* other) {
     if (other == nullptr) {
         throw InvalidArgument("other sequence is null");
     }
-    int total = length_ + other->GetLength();
-    BitSequence next(total);
-    for (int i = 0; i < length_; ++i) {
-        next.SetBit(i, GetBit(i));
+    const int old_words = WordCount(length_);
+    const int new_words = WordCount(length_ + other->GetLength());
+    if (new_words > old_words) {
+        words_.Resize(new_words);
+        for (int i = old_words; i < new_words; ++i) {
+            words_.Set(i, 0u);
+        }
     }
+    
     for (int i = 0; i < other->GetLength(); ++i) {
-        next.SetBit(length_ + i, other->Get(i).Value());
+        SetBit(length_ + i, other->Get(i).Value());
     }
-    *this = next;
+    length_ += other->GetLength();
     return this;
 }
 

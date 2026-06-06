@@ -8,6 +8,12 @@ namespace lab2 {
 template <class T>
 class LinkedList {
 public:
+    struct Node {
+        T value;
+        Node* next;
+        explicit Node(const T& v) : value(v), next(nullptr) {}
+    };
+
     LinkedList();
     LinkedList(const T* items, int count);
     LinkedList(const LinkedList<T>& other);
@@ -35,13 +41,9 @@ public:
 
     LinkedList<T>* Concat(const LinkedList<T>* other) const;
 
-private:
-    struct Node {
-        T value;
-        Node* next;
-        explicit Node(const T& v) : value(v), next(nullptr) {}
-    };
+    const Node* HeadNode() const { return head_; }
 
+private:
     Node* NodeAt(int index) const;
     void EnsureIndexValid(int index) const;
     void Clear();

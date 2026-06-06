@@ -8,70 +8,67 @@ namespace algorithms {
 
 template <class T, class R>
 Sequence<R>* Map(const Sequence<T>& source, R (*func)(const T&)) {
-    if (func == nullptr) {
-        throw InvalidArgument("map function is null");
-    }
+    if (func == nullptr) throw InvalidArgument("map function is null");
     MutableArraySequence<R>* result = new MutableArraySequence<R>();
-    for (int i = 0; i < source.GetLength(); ++i) {
-        result->Append(func(source.Get(i)));
-    }
+    IEnumerator<T>* it = source.GetEnumerator();
+    while (it->MoveNext()) result->Append(func(it->Current()));
+    delete it;
     return result;
 }
 
 template <class T>
 Sequence<T>* Where(const Sequence<T>& source, bool (*predicate)(const T&)) {
-    if (predicate == nullptr) {
-        throw InvalidArgument("predicate is null");
-    }
+    if (predicate == nullptr) throw InvalidArgument("predicate is null");
     MutableArraySequence<T>* result = new MutableArraySequence<T>();
-    for (int i = 0; i < source.GetLength(); ++i) {
-        T item = source.Get(i);
-        if (predicate(item)) {
-            result->Append(item);
-        }
+    IEnumerator<T>* it = source.GetEnumerator();
+    while (it->MoveNext()) {
+        T item = it->Current();
+        if (predicate(item)) result->Append(item);
     }
+    delete it;
     return result;
 }
 
 template <class T, class R>
 R Reduce(const Sequence<T>& source, R (*func)(const T&, const R&), const R& initial) {
-    if (func == nullptr) {
-        throw InvalidArgument("reduce function is null");
-    }
+    if (func == nullptr) throw InvalidArgument("reduce function is null");
     R acc = initial;
-    for (int i = 0; i < source.GetLength(); ++i) {
-        acc = func(source.Get(i), acc);
-    }
+    IEnumerator<T>* it = source.GetEnumerator();
+    while (it->MoveNext()) acc = func(it->Current(), acc);
+    delete it;
     return acc;
 }
 
 template <class T, class R>
 Sequence<R>* FlatMap(const Sequence<T>& source, Sequence<R>* (*func)(const T&)) {
-    if (func == nullptr) {
-        throw InvalidArgument("flat-map function is null");
-    }
+    if (func == nullptr) throw InvalidArgument("flat-map function is null");
     MutableArraySequence<R>* result = new MutableArraySequence<R>();
-    for (int i = 0; i < source.GetLength(); ++i) {
-        Sequence<R>* piece = func(source.Get(i));
+    IEnumerator<T>* outer = source.GetEnumerator();
+    while (outer->MoveNext()) {
+        Sequence<R>* piece = func(outer->Current());
         if (piece == nullptr) {
+            delete outer;
             delete result;
             throw InvalidArgument("flat-map function returned null");
         }
-        for (int j = 0; j < piece->GetLength(); ++j) {
-            result->Append(piece->Get(j));
-        }
+        IEnumerator<R>* inner = piece->GetEnumerator();
+        while (inner->MoveNext()) result->Append(inner->Current());
+        delete inner;
         delete piece;
     }
+    delete outer;
     return result;
 }
 
 template <class T1, class T2>
 Sequence<Pair<T1, T2>>* Zip(const Sequence<T1>& first, const Sequence<T2>& second) {
-    int n = first.GetLength() < second.GetLength() ? first.GetLength() : second.GetLength();
     MutableArraySequence<Pair<T1, T2>>* result = new MutableArraySequence<Pair<T1, T2>>();
-    for (int i = 0; i < n; ++i) {
-        result->Append(Pair<T1, T2>(first.Get(i), second.Get(i)));
-    }
+    IEnumerator<T1>* it1 = first.GetEnumerator();
+    IEnumerator<T2>* it2 = second.GetEnumerator();
+    while (it1->MoveNext() && it2->MoveNext())
+        result->Append(Pair<T1, T2>(it1->Current(), it2->Current()));
+    delete it1;
+    delete it2;
     return result;
 }
 
@@ -79,23 +76,24 @@ template <class T1, class T2>
 Pair<Sequence<T1>*, Sequence<T2>*> Unzip(const Sequence<Pair<T1, T2>>& source) {
     MutableArraySequence<T1>* a = new MutableArraySequence<T1>();
     MutableArraySequence<T2>* b = new MutableArraySequence<T2>();
-    for (int i = 0; i < source.GetLength(); ++i) {
-        Pair<T1, T2> p = source.Get(i);
+    IEnumerator<Pair<T1, T2>>* it = source.GetEnumerator();
+    while (it->MoveNext()) {
+        Pair<T1, T2> p = it->Current();
         a->Append(p.first);
         b->Append(p.second);
     }
+    delete it;
     return Pair<Sequence<T1>*, Sequence<T2>*>(a, b);
 }
 
 template <class T>
 Sequence<Sequence<T>*>* Split(const Sequence<T>& source, bool (*predicate)(const T&)) {
-    if (predicate == nullptr) {
-        throw InvalidArgument("predicate is null");
-    }
+    if (predicate == nullptr) throw InvalidArgument("predicate is null");
     MutableArraySequence<Sequence<T>*>* result = new MutableArraySequence<Sequence<T>*>();
     MutableArraySequence<T>* chunk = new MutableArraySequence<T>();
-    for (int i = 0; i < source.GetLength(); ++i) {
-        T item = source.Get(i);
+    IEnumerator<T>* it = source.GetEnumerator();
+    while (it->MoveNext()) {
+        T item = it->Current();
         if (predicate(item)) {
             result->Append(chunk);
             chunk = new MutableArraySequence<T>();
@@ -103,34 +101,41 @@ Sequence<Sequence<T>*>* Split(const Sequence<T>& source, bool (*predicate)(const
             chunk->Append(item);
         }
     }
+    delete it;
     result->Append(chunk);
     return result;
 }
 
 template <class T>
 Sequence<T>* Slice(const Sequence<T>& source, int index, int length, const Sequence<T>& insert) {
-    if (length < 0) {
-        throw InvalidArgument("slice length must be non-negative");
-    }
+    if (length < 0) throw InvalidArgument("slice length must be non-negative");
     int n = source.GetLength();
     int real_index = index < 0 ? n + index : index;
-    if (real_index < 0 || real_index > n) {
-        throw IndexOutOfRange("slice index out of range");
-    }
+    if (real_index < 0 || real_index > n) throw IndexOutOfRange("slice index out of range");
     int end = real_index + length;
-    if (end > n) {
-        end = n;
-    }
+    if (end > n) end = n;
+
     MutableArraySequence<T>* result = new MutableArraySequence<T>();
-    for (int i = 0; i < real_index; ++i) {
-        result->Append(source.Get(i));
+    
+    IEnumerator<T>* it = source.GetEnumerator();
+    int pos = 0;
+    while (it->MoveNext() && pos < real_index) {
+        result->Append(it->Current());
+        ++pos;
     }
-    for (int i = 0; i < insert.GetLength(); ++i) {
-        result->Append(insert.Get(i));
+    delete it;
+    
+    IEnumerator<T>* ins = insert.GetEnumerator();
+    while (ins->MoveNext()) result->Append(ins->Current());
+    delete ins;
+    
+    it = source.GetEnumerator();
+    pos = 0;
+    while (it->MoveNext()) {
+        if (pos >= end) result->Append(it->Current());
+        ++pos;
     }
-    for (int i = end; i < n; ++i) {
-        result->Append(source.Get(i));
-    }
+    delete it;
     return result;
 }
 

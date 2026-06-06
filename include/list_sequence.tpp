@@ -7,24 +7,31 @@ template <class T>
 class ListSequence<T>::ListEnumerator : public IEnumerator<T> {
 public:
     explicit ListEnumerator(const LinkedList<T>* data)
-        : data_(data), position_(-1) {}
+        : data_(data), current_(nullptr), position_(-1) {}
 
     bool MoveNext() override {
         if (position_ + 1 >= data_->GetLength()) return false;
         ++position_;
+        
+        current_ = (position_ == 0) ? data_->HeadNode() : current_->next;
         return true;
     }
 
     T Current() const override {
-        if (position_ < 0) throw InvalidArgument("Enumerator: MoveNext not called");
-        return data_->Get(position_);
+        if (position_ < 0 || current_ == nullptr)
+            throw InvalidArgument("Enumerator: MoveNext not called");
+        return current_->value;
     }
 
-    void Reset() override { position_ = -1; }
+    void Reset() override {
+        position_ = -1;
+        current_  = nullptr;
+    }
 
 private:
-    const LinkedList<T>* data_;
-    int position_;
+    const LinkedList<T>*              data_;
+    const typename LinkedList<T>::Node* current_;
+    int                               position_;
 };
 
 template <class T>
@@ -63,10 +70,19 @@ T ListSequence<T>::Get(int index) const { return items_.Get(index); }
 
 template <class T>
 Sequence<T>* ListSequence<T>::GetSubsequence(int start_index, int end_index) const {
-    LinkedList<T>* sub = items_.GetSubList(start_index, end_index);
+    const int len = items_.GetLength();
+    if (start_index < 0 || start_index >= len)
+        throw IndexOutOfRange("GetSubsequence: start out of range");
+    if (end_index < 0 || end_index >= len)
+        throw IndexOutOfRange("GetSubsequence: end out of range");
+    if (start_index > end_index)
+        throw InvalidArgument("GetSubsequence: start > end");
+
     ListSequence<T>* result = MakeEmpty();
-    for (int i = 0; i < sub->GetLength(); ++i) result->items_.Append(sub->Get(i));
-    delete sub;
+    const typename LinkedList<T>::Node* cur = items_.HeadNode();
+    for (int i = 0; i < start_index; ++i) cur = cur->next;
+    for (int i = start_index; i <= end_index; ++i, cur = cur->next)
+        result->items_.Append(cur->value);
     return result;
 }
 
@@ -102,8 +118,9 @@ template <class T>
 Sequence<T>* ListSequence<T>::Concat(const Sequence<T>* other) {
     if (other == nullptr) throw InvalidArgument("Concat: other sequence is null");
     ListSequence<T>* target = Instance();
-    const int n = other->GetLength();
-    for (int i = 0; i < n; ++i) target->items_.Append(other->Get(i));
+    IEnumerator<T>* it = other->GetEnumerator();
+    while (it->MoveNext()) target->items_.Append(it->Current());
+    delete it;
     return target;
 }
 

@@ -88,24 +88,8 @@ void DynamicArray<T>::Resize(int new_size) {
                               std::to_string(new_size));
     }
     if (new_size == size_) return;
-    if (new_size == 0) {
-        for (int i = 0; i < size_; ++i) {
-            data_[i] = T();
-        }
-        size_ = 0;
-        return;
-    }
-    const int old_size = size_;
+    
     EnsureCapacity(new_size);
-    if (new_size > old_size) {
-        for (int i = old_size; i < new_size; ++i) {
-            data_[i] = T();
-        }
-    } else {
-        for (int i = new_size; i < old_size; ++i) {
-            data_[i] = T();
-        }
-    }
     size_ = new_size;
 }
 
